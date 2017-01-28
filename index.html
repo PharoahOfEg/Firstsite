@@ -1,0 +1,139 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8" />
+    <script src="sylvester.src.js"></script>
+    <script src="glUtils.js"></script>
+    <script src="Object3D.js"></script>
+    <script type="HAMADA" id="vShader">
+        attribute vec3 pos;
+        uniform mat4 mVMatrix;
+        uniform mat4 pMatrix;
+        void main(){
+            gl_Position = pMatrix*mVMatrix*vec4(pos,1);
+        }
+    </script>
+    <script type="x-shader" id="fShader">
+        void main(){
+        gl_FragColor=vec4(1,1,1,1);
+        }
+    </script>
+</head>
+
+<body>
+    <canvas id="gl" width="600" height="600"></canvas>
+    <script>
+        ///<var name ="gl" type="WebGLRenderingContext">
+
+        var canvas = document.getElementById("gl");
+        var gl = canvas.getContext("webgl");
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.enable(gl.DEPTH_TEST);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        
+        
+        var program = new ShaderProgram(gl, "vShader", "fShader");
+        gl.useProgram(program);
+        //var attrib = gl.getAttribute(program, "pos");
+        //gl.enableVertextAttribArray(attrib);
+        //var attrib = program.getAttribute("pos");
+        var vertices = [
+            -.5, -1, 0,
+            0, 1, 0,
+            1, -.5, 0
+        ];
+        var obj = new Object3D({
+            'gl': gl,
+            'vertcies': vertices,
+            'program':program
+        });
+        draw();
+        var camera = makePerspective(45, 1, 0.1, 100);
+        camera=camera.multiply(Matrix.Translation($V([0,0,-10])));
+        window.onkeydown=function(e){
+            if (e.key == 'w') {
+                camera = camera.multiply(Matrix.Translation($V([0, 0, -1])));
+            }
+            else {
+                camera = camera.multiply(Matrix.Translation($V([0, 0, +1])));
+
+            }
+            
+        }
+        var child=new Object3D({
+            'gl': gl,
+            'vertcies': vertices,
+            'program': program
+        });
+        child.translate($V([.5, 0.3, 0]));
+        child.rotate(0,0,.3);
+        obj.add(child);
+        function draw() {
+            obj.draw(camera);
+            //obj.rotate(0,0,.1);
+            ///<param name="gl" type="WebGLRenderingContext">
+            //MVMatrix =MVMatrix.multiply(Matrix.RotationZ(.01).ensure4x4());
+            //gl.uniformMatrix4fv(mvLocation,false,new Float32Array(MVMatrix.flatten()));
+            //gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            //gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+            //gl.vertexAttribPointer(attrib, 3, gl.FLOAT, false, 0, 0);
+            //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 3);
+
+            requestAnimationFrame(draw);
+        }
+
+
+        ////2
+        //function Shader(gl, shaderID, type) {
+        //    ///<param name="gl" type="WebGLRenderingContext">
+        //    var element = document.getElementById(shaderID);
+        //    if (!element) {
+        //        alert("no element");
+        //        return null;
+        //    }
+        //    var shader = gl.createShader(type); //gl.VERTEX_SHADER; gl.FRAGMENT_SHADER;
+        //    gl.shaderSource(shader, element.innerText);
+        //    gl.compileShader(shader);
+        //    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        //        alert("shader error:" + gl.getShaderInfoLog(shader));
+        //        return null;
+        //    }
+        //    return shader;
+        //}
+
+        ////3 Program
+        //function ShaderProgram(gl, vsID, fsID) {
+        //    ///<param name="gl" type="WebGLRenderingContext">
+        //    vShader = new Shader(gl, vsID, gl.VERTEX_SHADER);
+        //    fShader = new Shader(gl, fsID, gl.FRAGMENT_SHADER);        
+        //    var _program = gl.createProgram();
+        //    gl.attachShader(_program, vShader);
+        //    gl.attachShader(_program, fShader);
+        //    gl.linkProgram(_program);
+        //    if (!gl.getProgramParameter(_program, gl.LINK_STATUS)) {
+        //        alert("error");
+        //        return null;
+        //    }
+        //    _program.getAttribute = function (attribName) {
+        //        var attrib = gl.getAttribLocation(_program, attribName);
+        //        gl.enableVertexAttribArray(attrib);
+        //        return attrib;
+        //    }
+        //    _program.getUniform = function (uniform) {
+        //        var uniform = gl.getUniformLocation(_program, uniform);
+        //        return uniform;
+        //    }
+        //    return _program;
+        //}
+
+        //function Buffer(gl, vertices) {
+        //    var buffer = gl.createBuffer();
+        //    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        //    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+        //    return buffer;
+        //}
+    </script>
+</body>
+</html>
